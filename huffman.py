@@ -18,23 +18,28 @@ def encoder(originalString):
   for symbol in originalString:
     encoded = encoded + str(codeDict[symbol])
 
-  return encoded
+  compressedBits = [encoded[i:i+8] for i in range(0, len(encoded), 8)]
+  compressedBytes = bytes([int(b, 2) for b in compressedBits])
+
+  return compressedBytes
 
 # given the encoded result and the root
 # transverse the tree and decode it
 # return the original text
-def decodeFromTree(encodedText, root):
-  decoded = ""
-  currentNode = root
+def decodeFromTree(compressedBytes, root):
+    binaryString = ''.join(format(byte, '08b') for byte in compressedBytes)
+    decodedString = ""
 
-  for i in range(len(encodedText)):
-    if encodedText[i] == '0':
-      currentNode = currentNode.left
-    else:
-      currentNode = currentNode.right
+    currentNode = root
+    for bit in binaryString:
+        if bit == '0':
+            currentNode = currentNode.left
+        else:
+            currentNode = currentNode.right
 
-    if currentNode.left == None and currentNode.right == None:
-      decoded += currentNode.data
-      currentNode = root
-  
-  return decoded
+        if currentNode.left is None and currentNode.right is None:
+            decodedString += currentNode.data
+            currentNode = root
+
+    return decodedString
+

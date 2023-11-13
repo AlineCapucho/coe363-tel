@@ -1,5 +1,3 @@
-from textHelpers import txtToString
-
 # represents a node in the huffman tree
 # data is the symbol represented by the node
 # freq is the frequency of the data
