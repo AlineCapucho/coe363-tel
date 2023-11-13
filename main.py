@@ -1,23 +1,38 @@
-from textHelpers import txtToString, byteStringToTxt, stringToTxt, txtFileSize
-from huffmanHelpers import getSymbolFreq, createNodes, getTreeRoot
-from huffman import encoder, decodeFromTree
+from huffman import huffman_compressor, huffman_decompressor
+from text_helpers import get_txt_size
 
 dracula = './raw-data/dracula.txt'
-# monteCristo = './raw-data/le-comte-de-monte-cristo.txt'
-# domCasmurro = './raw-data/dom-casmurro.txt'
+dracula_compressed = './results/dracula-compressed.txt'
+dracula_decompressed = './results/dracula-decompressed.txt'
 
-originalString = txtToString(dracula)
-compressed = encoder(originalString)
+monteCristo = './raw-data/le-comte-de-monte-cristo.txt'
+monteCristo_compressed = './results/le-comte-de-monte-cristo-compressed.txt'
+monteCristo_decompressed = './results/le-comte-de-monte-cristo-decompressed.txt'
 
-byteStringToTxt(compressed, './results/dracula-compressed.txt')
+domCasmurro = './raw-data/dom-casmurro.txt'
+domCasmurro_compressed = './results/dom-casmurro-compressed.txt'
+domCasmurro_decompressed = './results/dom-casmurro-decompressed.txt'
 
-symbolsDict = getSymbolFreq(originalString)
-nodes = createNodes(symbolsDict)
-root = getTreeRoot(nodes)
-decoded = decodeFromTree(compressed, root)
+huffman_compressor(dracula, dracula_compressed)
+huffman_decompressor(dracula, dracula_compressed, dracula_decompressed)
 
-stringToTxt(decoded, './results/dracula-decompressed.txt')
+huffman_compressor(monteCristo, monteCristo_compressed)
+huffman_decompressor(monteCristo, monteCristo_compressed, monteCristo_decompressed)
 
-print('ORIGINAL - sizeof', txtFileSize('./raw-data/dracula.txt'))
-print('COMPRESSED - sizeof', txtFileSize('./results/dracula-compressed.txt'))
-print('DECOMPRESSED - sizeof', txtFileSize('./results/dracula-decompressed.txt'))
+huffman_compressor(domCasmurro, domCasmurro_compressed)
+huffman_decompressor(domCasmurro, domCasmurro_compressed, domCasmurro_decompressed)
+
+print('\nDRACULA')
+print('ORIGINAL - sizeof', get_txt_size(dracula))
+print('COMPRESSED - sizeof', get_txt_size(dracula_compressed))
+print('DECOMPRESSED - sizeof', get_txt_size(dracula_decompressed))
+
+print('\nMONTE CRISTO')
+print('ORIGINAL - sizeof', get_txt_size(monteCristo))
+print('COMPRESSED - sizeof', get_txt_size(monteCristo_compressed))
+print('DECOMPRESSED - sizeof', get_txt_size(monteCristo_decompressed))
+
+print('\nDOM CASMURRO')
+print('ORIGINAL - sizeof', get_txt_size(domCasmurro))
+print('COMPRESSED - sizeof', get_txt_size(domCasmurro_compressed))
+print('DECOMPRESSED - sizeof', get_txt_size(domCasmurro_decompressed))

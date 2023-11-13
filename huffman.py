@@ -1,45 +1,26 @@
-from huffmanHelpers import getSymbolFreq, createNodes, getTreeRoot, makeCode
+from huffman_helpers import __encoder, __compressor, __decompressor, __tree_decoder, __get_frequency, __make_tree
+from text_helpers import txt_to_str, byte_to_txt, str_to_txt, txt_to_byte
 
-# given the original text
-# create the symbols dictionary
-# use it to create the huffman nodes
-# create the huffman tree
-# represent each character through a code
-# return the encoded text
-def encoder(originalString):
-  symbolsDict = getSymbolFreq(originalString)
-  nodes = createNodes(symbolsDict)
-  root = getTreeRoot(nodes)
-
-  codeDict = {}
-  makeCode(root, "", codeDict)
+def huffman_compressor(original_file_name, compressed_file_name):
+  """Given a txt file, compress it using the Huffman algorithm and write it to a new txt file"""
   
-  encoded = ""
-  for symbol in originalString:
-    encoded = encoded + str(codeDict[symbol])
+  original_str = txt_to_str(original_file_name)
+  encoded_str = __encoder(original_str)
+  compressed_str = __compressor(encoded_str)
 
-  compressedBits = [encoded[i:i+8] for i in range(0, len(encoded), 8)]
-  compressedBytes = bytes([int(b, 2) for b in compressedBits])
+  byte_to_txt(compressed_str, compressed_file_name)
 
-  return compressedBytes
+def huffman_decompressor(original_file_name, compressed_file_name, decompressed_file_name):
+  """Given a txt file compressed using the Huffman algorithm, decompress it and write the original to a new txt file"""
 
-# given the encoded result and the root
-# transverse the tree and decode it
-# return the original text
-def decodeFromTree(compressedBytes, root):
-    binaryString = ''.join(format(byte, '08b') for byte in compressedBytes)
-    decodedString = ""
+  original_str = txt_to_str(original_file_name)
 
-    currentNode = root
-    for bit in binaryString:
-        if bit == '0':
-            currentNode = currentNode.left
-        else:
-            currentNode = currentNode.right
+  compressed_str = txt_to_byte(compressed_file_name)
+  decompressed_str = __decompressor(compressed_str)
 
-        if currentNode.left is None and currentNode.right is None:
-            decodedString += currentNode.data
-            currentNode = root
+  freq_dict = __get_frequency(original_str)
+  root = __make_tree(freq_dict)
 
-    return decodedString
+  decoded_str = __tree_decoder(decompressed_str, root)
 
+  str_to_txt(decoded_str, decompressed_file_name)
