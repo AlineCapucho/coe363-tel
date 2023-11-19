@@ -1,3 +1,5 @@
+import json
+
 class huffman_node:
   """Represents a node in a Huffman tree. Data -> symbol. Freq -> Frequency of data"""
   def __init__(self, data, freq):
@@ -55,6 +57,13 @@ def __make_code(node, code, encoded_dict):
   __make_code(node.right, code+"1",encoded_dict)
   __make_code(node.left, code+"0",encoded_dict)
 
+def __dict_compressor(encoded_dict):
+  dict_to_str = ''.join(format(ord(char), '8b') for char in json.dumps(encoded_dict))
+  compressed_bits = [dict_to_str[i:i+8] for i in range(0, len(dict_to_str), 8)]
+  compressed_bytes = bytes([int(b, 2) for b in compressed_bits])
+
+  return compressed_bytes
+
 def __encoder(original_string):
   """Given a string, return a binary encoded version of it using the Huffman algorithm."""
   
@@ -62,49 +71,51 @@ def __encoder(original_string):
   root = __make_tree(freq_dict)
 
   code_dict = {}
+  code_dict['code_dict'] = 'true'
   __make_code(root, "", code_dict)
   
   encoded = ""
   for symbol in original_string:
     encoded = encoded + str(code_dict[symbol])
 
-  return encoded
+  return [encoded, code_dict]
 
 def __compressor(encoded_string):
   """Given an encoded binary string, breaks it into segments of 8 bits each and converts these segments to bytes. Return the string in bytes"""
   
   compressed_bits = [encoded_string[i:i+8] for i in range(0, len(encoded_string), 8)]
-  compressed_bytes = bytes([int(b, 2) for b in compressed_bits])
+  
+  for i in range(len(compressed_bits)):
+    length = len(compressed_bits[i])
+    if (length != 8):
+      compressed_bits[i] += '0'*(8 - length)
 
+  compressed_bytes = bytes([int(b, 2) for b in compressed_bits])
+  
   return compressed_bytes
 
 def __decompressor(compressed_bytes):
   """Given a bytes value representing a binary string, return the original binary string"""
-  
-  binary_str = ''.join(format(byte, '08b') for byte in compressed_bytes)
-  
-  return binary_str
+  code_dict_index = compressed_bytes.rindex(b'code_dict') - 2
+  code_dict_compressed = compressed_bytes[slice(code_dict_index, len(compressed_bytes))]
+  code_dict_encoded = ''.join(format(byte, '08b') for byte in code_dict_compressed)
 
-def __decoder(compressed_bytes):
-  """"""
-  binary_str = __decompressor(compressed_bytes)
+  compressed_str = compressed_bytes[slice(0, code_dict_index)]
+  encoded_str = ''.join(format(byte, '08b') for byte in compressed_str)
 
-# given the encoded result and the root
-# transverse the tree and decode it
-# return the original text
-def __tree_decoder(binary_str, root):
-  """"""
+  return [encoded_str, code_dict_encoded]
+
+def __decoder(binary_str, code_dict):
+  """Given a binary string and the encoding dictionary, return the original string"""
+  inverted_code_dict = {value: key for key, value in code_dict.items()}
+  
+  current_character = ""
   decoded_str = ""
 
-  current_node = root
   for bit in binary_str:
-      if bit == '0':
-          current_node = current_node.left
-      else:
-          current_node = current_node.right
+    current_character += bit
+    if current_character in inverted_code_dict:
+      decoded_str += inverted_code_dict[current_character]
+      current_character = ""
 
-      if current_node.left is None and current_node.right is None:
-          decoded_str += current_node.data
-          current_node = root
-
-  return decoded_str
+  return decoded_str.strip()

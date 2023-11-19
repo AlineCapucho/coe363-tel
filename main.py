@@ -1,5 +1,8 @@
 from huffman import huffman_compressor, huffman_decompressor
 from text_helpers import get_txt_size
+import time
+from matplotlib import pyplot as plt
+import numpy as np  
 
 books = [
   {
@@ -27,12 +30,6 @@ books = [
     'decompressed': './results/la-divina-commedia-decompressed.txt',
   },
   {
-    'name': '入れかわった男',
-    'original': './raw-data/入れかわった男.txt',
-    'compressed': './results/入れかわった男-compressed.txt',
-    'decompressed': './results/入れかわった男-decompressed.txt',
-  },
-  {
     'name': 'schumann',
     'original': './raw-data/schumann.txt',
     'compressed': './results/schumann-compressed.txt',
@@ -40,11 +37,63 @@ books = [
   }
 ]
 
-for book in books:
-  huffman_compressor(book['original'], book['compressed'])
-  huffman_decompressor(book['original'], book['compressed'], book['decompressed'])
+original_sizes, compressed_sizes, decompressed_sizes = [], [], []
+compression_rates, decompression_rates = [], []
+compression_times, decompression_times = [], []
 
-  print(f"\n{book['name']}")
-  print('ORIGINAL - sizeof', get_txt_size(book['original']))
-  print('COMPRESSED - sizeof', get_txt_size(book['compressed']))
-  print('DECOMPRESSED - sizeof', get_txt_size(book['decompressed']))
+for book in books:
+  start_time = time.time()
+  huffman_compressor(book['original'], book['compressed'])
+  execution_time = time.time() - start_time
+
+  compression_times.append(execution_time)
+
+  start_time = time.time()
+  huffman_decompressor(book['compressed'], book['decompressed'])
+  execution_time = time.time() - start_time
+
+  decompression_times.append(execution_time)
+
+  original_size = get_txt_size(book['original'])
+  compressed_size = get_txt_size(book['compressed'])
+  decompressed_size = get_txt_size(book['decompressed'])
+
+  original_sizes.append(original_size) 
+  compressed_sizes.append(compressed_size) 
+  decompressed_sizes.append(decompressed_size)
+
+  compression_rates.append((compressed_size/original_size)*100)
+  decompression_rates.append((decompressed_size/original_size)*100)
+  
+book_names = [book['name'] for book in books]
+
+plt.style.use('seaborn-v0_8-pastel')
+
+X_axis = np.arange(len(book_names)) 
+
+# Compression & Decompression Rates Plot
+plt.bar(X_axis - 0.2, compression_rates, 0.4, label = 'Taxa de compressão (%)')
+plt.bar(X_axis + 0.2, decompression_rates, 0.4, label = 'Taxa de descompressão (%)')
+plt.xticks(X_axis, book_names)
+plt.legend()
+plt.xlabel('Arquivos')
+plt.title('Taxas de compressão e descompressão')
+plt.show()
+
+# Original Size vs Compressed Size vs Decompressed Size Plot
+plt.bar(X_axis - 0.2, compressed_sizes, 0.2, label = 'Comprimido')
+plt.bar(X_axis, decompressed_sizes, 0.2, label = 'Descomprimido')
+plt.bar(X_axis + 0.2, original_sizes, 0.2, label = 'Original')
+plt.xlabel('Arquivos')
+plt.ylabel('Tamanho')
+plt.legend()
+plt.title('Tamanho dos arquivos - Comprimido x Descomprimido x Original')
+plt.show()
+
+# Compression Time Plot
+print(f'Taxa de compressão média: {np.mean(compression_rates): .2f}%')
+print(f'Taxa de descompressão média: {np.mean(decompression_rates): .2f}%')
+print(f'Tempo médio de compressão: {np.mean(compression_times): .2f} segundos')
+print(f'Tempo médio de descompressão: {np.mean(decompression_times): .2f} segundos')
+
+# TODO: tempo de compressão por tamanho do arquivo
