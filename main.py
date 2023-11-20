@@ -67,6 +67,13 @@ for book in books:
   
 book_names = [book['name'] for book in books]
 
+# Compression Time Plot
+print(f'Taxa de compressão média: {np.mean(compression_rates): .2f}%')
+print(f'Taxa de descompressão média: {np.mean(decompression_rates): .2f}%')
+print(f'Tempo médio de compressão: {np.mean(compression_times): .2f} segundos')
+print(f'Tempo médio de descompressão: {np.mean(decompression_times): .2f} segundos')
+print(f'Kbs comprimidos por segundo: {np.sum(original_sizes)/np.sum(compression_times): .2f} kbs/s')
+
 plt.style.use('seaborn-v0_8-pastel')
 
 X_axis = np.arange(len(book_names)) 
@@ -89,11 +96,3 @@ plt.ylabel('Tamanho')
 plt.legend()
 plt.title('Tamanho dos arquivos - Comprimido x Descomprimido x Original')
 plt.show()
-
-# Compression Time Plot
-print(f'Taxa de compressão média: {np.mean(compression_rates): .2f}%')
-print(f'Taxa de descompressão média: {np.mean(decompression_rates): .2f}%')
-print(f'Tempo médio de compressão: {np.mean(compression_times): .2f} segundos')
-print(f'Tempo médio de descompressão: {np.mean(decompression_times): .2f} segundos')
-
-# TODO: tempo de compressão por tamanho do arquivo

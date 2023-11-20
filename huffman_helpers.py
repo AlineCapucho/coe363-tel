@@ -54,8 +54,8 @@ def __make_code(node, code, encoded_dict):
     encoded_dict[node.data] = code
     return encoded_dict
 
-  __make_code(node.right, code+"1",encoded_dict)
-  __make_code(node.left, code+"0",encoded_dict)
+  __make_code(node.right, code+"1", encoded_dict)
+  __make_code(node.left, code+"0", encoded_dict)
 
 def __dict_compressor(encoded_dict):
   dict_to_str = ''.join(format(ord(char), '8b') for char in json.dumps(encoded_dict))
