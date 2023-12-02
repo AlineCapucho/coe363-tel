@@ -11,9 +11,8 @@ input_text = read_file(input_filename)
 compressed_data = compressor.compress(input_text)
 write_compressed_file(compressed_data, compressed_filename)
 
-decompressed_data = compressor.decompress(compressed_data)
+compressed_file = read_compressed_file(compressed_filename)
+decompressed_data = compressor.decompress(compressed_file)
 write_decompressed_file(decompressed_data, decompressed_filename)
-compressed_data = read_compressed_file(compressed_filename)
-
 
 True
