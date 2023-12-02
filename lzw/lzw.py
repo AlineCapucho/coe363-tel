@@ -1,4 +1,4 @@
-import struct
+from io import StringIO
 
 class LZWCompression:
     def __init__(self):
@@ -6,7 +6,7 @@ class LZWCompression:
         self.decompress_dict_size = 65536 # Unicode
         self.compress_dictionary = {chr(i): i for i in range(self.compress_dict_size)}
         self.decompress_dictionary = {i: chr(i) for i in range(self.decompress_dict_size)}
-        self.next_code = 256
+        self.next_code = 65536
 
     def compress(self, uncompressed: str):
         w = ""
@@ -25,28 +25,22 @@ class LZWCompression:
             result.append(self.compress_dictionary[w])
         return result
 
-    def decompress(self, compressed: bytes):
-        from io import BytesIO
+    def decompress(self, data):
+        result = StringIO()
+        current_code = chr(data.pop(0))
+        result.write(current_code)
 
-        compressed_data = struct.unpack('I' * (len(compressed) // 4), compressed)
-
-        result = BytesIO()
-        w = struct.pack('I', compressed_data.pop(0))
-        result.write(w)
-        for k in compressed_data:
-            if k in self.decompress_dictionary:
-                entry = self.decompress_dictionary[k]
-            elif k == self.decompress_dict_size:
-                entry = w + w[0]
+        for code in data:
+            if code in self.decompress_dictionary:
+                entry = self.decompress_dictionary[code]
+            elif code == self.next_code:
+                entry = current_code + current_code[0]
             else:
-                raise ValueError('Bad compressed k: %s' % k)
+                raise ValueError(f"Bad compressed code: {code}")
 
-            entry_bytes = entry.encode('utf-16-le')
-            result.write(entry_bytes)
+            result.write(entry)
+            self.decompress_dictionary[self.next_code] = current_code+ entry[0]
+            self.next_code += 1
+            current_code = entry
 
-            self.decompress_dictionary[self.decompress_dict_size] = w + entry[0].encode('utf-16-le')
-            self.decompress_dict_size += 1
-
-            w = entry_bytes
-
-        return result.getvalue().decode('utf-16-le')
+        return result.getvalue()

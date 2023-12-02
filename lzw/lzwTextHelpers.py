@@ -5,14 +5,15 @@ def read_file(filename):
         return file.read()
 
 def write_compressed_file(compressed_data, filename):
+    packed_data = struct.pack('I' * len(compressed_data), *compressed_data)
     with open(filename, 'wb') as file:
-        file.write(struct.pack('I' * len(compressed_data), *compressed_data))
+        file.write(packed_data)
 
 def read_compressed_file(filename):
     with open(filename, 'rb') as file:
-        # to do: Corrigir este unpack pra ler certinho, consultar prevs.dat do backtest?
-        compressed_data = struct.unpack('I' * (len(file.read()) // 2), file.read())
-    return compressed_data
+        read_data = file.read()
+    compressed_data = struct.unpack('I' * (len(read_data) // 4), read_data)
+    return list(compressed_data)
 
 def write_decompressed_file(decompressed_data, filename):
     with open(filename, 'w') as file:
