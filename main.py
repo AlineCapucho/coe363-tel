@@ -81,9 +81,9 @@ X_axis = np.arange(len(book_names))
 # Compression & Decompression Rates Plot
 plt.bar(X_axis - 0.2, compression_rates, 0.4, label = 'Taxa de compressão (%)')
 plt.bar(X_axis + 0.2, decompression_rates, 0.4, label = 'Taxa de descompressão (%)')
-plt.xticks(X_axis, book_names)
 plt.legend()
 plt.xlabel('Arquivos')
+plt.ylabel('Taxa')
 plt.title('Taxas de compressão e descompressão')
 plt.show()
 
