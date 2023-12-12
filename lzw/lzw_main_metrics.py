@@ -68,8 +68,8 @@ for book in books:
   compressed_sizes.append(compressed_size) 
   decompressed_sizes.append(decompressed_size)
 
-  compression_rates.append((compressed_size/original_size)*100)
-  decompression_rates.append((decompressed_size/original_size)*100)
+  compression_rates.append((1 - (compressed_size/original_size))*100)
+  decompression_rates.append((1 - (decompressed_size/original_size))*100)
   
 book_names = [book['name'] for book in books]
 
@@ -80,17 +80,18 @@ print(f'Tempo médio de compressão: {np.mean(compression_times): .2f} segundos'
 print(f'Tempo médio de descompressão: {np.mean(decompression_times): .2f} segundos')
 print(f'Kbs comprimidos por segundo: {np.sum(original_sizes)/np.sum(compression_times): .2f} kbs/s')
 
-# plt.style.use('seaborn-v0_8-pastel')
+plt.style.use('seaborn-v0_8-pastel')
 
 X_axis = np.arange(len(book_names)) 
 
 # Compression & Decompression Rates Plot
-plt.bar(X_axis - 0.2, compression_rates, 0.4, label = 'Taxa de compressão (%)')
-plt.bar(X_axis + 0.2, decompression_rates, 0.4, label = 'Taxa de descompressão (%)')
-plt.xticks(X_axis, book_names)
+plt.bar(X_axis, compression_rates, 0.4, label = 'Taxa de compressão (%)')
 plt.legend()
 plt.xlabel('Arquivos')
-plt.title('Taxas de compressão e descompressão')
+plt.ylabel('Taxa')
+plt.title('Taxas de compressão')
+for i, value in enumerate(compression_rates):
+    plt.text(i, value + 0.5, f'{value: .2f}%', ha='center', va='center')
 plt.show()
 
 # Original Size vs Compressed Size vs Decompressed Size Plot
