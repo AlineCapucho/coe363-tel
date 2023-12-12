@@ -9,20 +9,20 @@ class LZWCompression:
         self.next_code = 65536
 
     def compress(self, uncompressed: str):
-        w = ""
+        current_sequence = ""
         result = []
-        for c in uncompressed:
-            wc = w + c
-            if wc in self.compress_dictionary:
-                w = wc
+        for current_char in uncompressed:
+            new_sequence = current_sequence + current_char
+            if new_sequence in self.compress_dictionary:
+                current_sequence = new_sequence
             else:
-                result.append(self.compress_dictionary[w])
-                self.compress_dictionary[wc] = self.compress_dict_size
+                result.append(self.compress_dictionary[current_sequence])
+                self.compress_dictionary[new_sequence] = self.compress_dict_size
                 self.compress_dict_size += 1
-                w = c
+                current_sequence = current_char
 
-        if w:
-            result.append(self.compress_dictionary[w])
+        if current_sequence:
+            result.append(self.compress_dictionary[current_sequence])
         return result
 
     def decompress(self, data):
